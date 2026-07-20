@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Access Portal</title>
+    <!-- Use some nice google fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a2540;
+            --secondary: #635bff;
+            --bg: #f6f9fc;
+            --text: #425466;
+            --border: #e6ebf1;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            color: var(--text);
+        }
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #0a2540 0%, #1a365d 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10 10h80v80H10z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>') repeat;
+            opacity: 0.5;
+        }
+        .left-panel h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            z-index: 1;
+        }
+        .left-panel p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.8;
+            max-width: 400px;
+            z-index: 1;
+        }
+        .right-panel {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            fill: var(--secondary);
+        }
+        h2 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+        .subtitle {
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+        }
+        .forgot-link {
+            float: right;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        button:hover {
+            background-color: #524ade;
+        }
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        .error-message svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .left-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-panel" style="background: white; align-items: center; justify-content: center; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+    <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+    <h1 style="margin-top: 20px; color: #1e293b; font-size: 2rem;">Corporate Network</h1>
+</div>
+
+<div class="right-panel">
+    <div class="login-box">
+        <div class="logo">
+            <h2 style="color: #2563eb; margin:0; font-weight: bold; font-size: 1.5rem;">Secure Access</h2>
+        </div>
+
+        <h2>Admin Panel</h2>
+        <p class="subtitle">Please authenticate to access the corporate system.</p>
+
+        {% if error %}
+        <div class="error-message">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="">
+            <div class="form-group">
+                <label for="username">Corporate Email or Domain ID</label>
+                <input type="text" id="username" name="username" placeholder="e.g. j.doe@globalnet.local" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <a href="#" class="forgot-link">Forgot password?</a>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <button type="submit">Connect to Network</button>
+        </form>
+        
+        <div style="margin-top: 2rem; font-size: 0.8rem; text-align: center; color: #9ca3af;">
+            Enterprise Security Gateway<br>
+            Version 2.4.1
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uvluk Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .stat-card { text-align: center; padding: 20px; }
+        .stat-card h3 { font-size: 2rem; margin-bottom: 0; color: #0d6efd; }
+        .stat-card p { color: #6c757d; margin-bottom: 0; font-weight: 500; }
+        .table-responsive { max-height: 400px; overflow-y: auto; }
+        thead { position: sticky; top: 0; background-color: #fff; z-index: 1; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="/" style="background: rgba(255,255,255,0.95); padding: 5px 15px; border-radius: 8px;">
+            <img src="{{ url_for('static', filename='img/logo-text.png') }}" alt="Uvluk" style="height: 38px;">
+            <span class="ms-3 fs-6 text-dark fw-bold">Analytics</span>
+        </a>
+        <div class="d-flex gap-2">
+            <a href="/settings" class="btn btn-outline-info btn-sm">⚙️ Settings & Whitelist</a>
+            <a href="/public/threat_feed.txt" class="btn btn-outline-warning btn-sm" target="_blank">Export Threat List (TXT)</a>
+            <a href="/public" class="btn btn-outline-light btn-sm" target="_blank">View Public Dashboard</a>
+            <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4">
+    {% if not stats %}
+    <div class="alert alert-warning">No data collected yet.</div>
+    {% else %}
+    <!-- Top Stats -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <h3>{{ stats.total_requests }}</h3>
+                <p>Total Requests</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <h3>{{ stats.unique_ips }}</h3>
+                <p>Unique IPs</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <h3>{{ stats.login_attempts }}</h3>
+                <p>Login Attempts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Traffic Over Time</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trafficChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top IPs -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Top 10 IPs</h5>
+                </div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="ipChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Paths -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Top 10 Scanned Paths</h5>
+                </div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="pathChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Credentials -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Top Login Credentials</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Password</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cred in stats.top_creds %}
+                                <tr>
+                                    <td><code>{{ cred[0] }}</code></td>
+                                    <td><code>{{ cred[1] }}</code></td>
+                                    <td>{{ cred[2] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top User Agents -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Top User Agents</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>User Agent</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ua in stats.top_uas %}
+                                <tr>
+                                    <td><small>{{ ua[0] }}</small></td>
+                                    <td>{{ ua[1] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Logs Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Raw Logs</h5>
+                    <span class="badge bg-secondary">Total: {{ total_logs }} records</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 600px;">
+                        <table class="table table-hover table-sm mb-0" style="font-size: 0.85rem;">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Time (UTC)</th>
+                                    <th>IP</th>
+                                    <th>Country</th>
+                                    <th>Type</th>
+                                    <th>Method</th>
+                                    <th>Path</th>
+                                    <th>User/Pass</th>
+                                    <th>User-Agent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td class="text-nowrap">{{ log.timestamp }}</td>
+                                    <td><code>{{ log.ip }}</code></td>
+                                    <td>{{ log.country }}</td>
+                                    <td>
+                                        {% if log.event_type == 'login_attempt' %}
+                                        <span class="badge bg-danger">Login</span>
+                                        {% elif log.event_type == 'page_view' %}
+                                        <span class="badge bg-info">View</span>
+                                        {% else %}
+                                        <span class="badge bg-warning text-dark">Probe</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.method }}</td>
+                                    <td><span title="{{ log.path }}" style="max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ log.path }}</span></td>
+                                    <td>
+                                        {% if log.username or log.password %}
+                                        <code class="text-danger">{{ log.username }}:{{ log.password }}</code>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                    <td><span title="{{ log.user_agent }}" style="max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ log.user_agent }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% if total_pages > 1 %}
+                <div class="card-footer bg-white">
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0 justify-content-center">
+                            {% if page > 1 %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page - 1 }}">Previous</a></li>
+                            {% endif %}
+                            
+                            <li class="page-item disabled"><span class="page-link">Page {{ page }} of {{ total_pages }}</span></li>
+                            
+                            {% if page < total_pages %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page + 1 }}">Next</a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    {% if stats %}
+    // Time Series Chart
+    const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+    new Chart(trafficCtx, {
+        type: 'line',
+        data: {
+            labels: {{ stats.time_series.labels | safe }},
+            datasets: [{
+                label: 'Requests per Day',
+                data: {{ stats.time_series.data | safe }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Top IPs Chart
+    const ipCtx = document.getElementById('ipChart').getContext('2d');
+    new Chart(ipCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ stats.top_ips | map(attribute=0) | list | tojson }},
+            datasets: [{
+                label: 'Requests',
+                data: {{ stats.top_ips | map(attribute=1) | list | tojson }},
+                backgroundColor: '#dc3545'
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y'
+        }
+    });
+
+    // Top Paths Chart
+    const pathCtx = document.getElementById('pathChart').getContext('2d');
+    new Chart(pathCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ stats.top_paths | map(attribute=0) | list | tojson }},
+            datasets: [{
+                label: 'Scans',
+                data: {{ stats.top_paths | map(attribute=1) | list | tojson }},
+                backgroundColor: '#ffc107'
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y'
+        }
+    });
+    {% endif %}
+</script>
+
+</body>
+</html>

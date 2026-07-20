@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Control Panel Login</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Open Sans', sans-serif; background: #1a242f; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-box { background: white; width: 360px; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow: hidden; }
+        .logo { background: #ff6c2c; padding: 25px; text-align: center; color: white; font-size: 28px; font-weight: bold; letter-spacing: -1px; }
+        .logo span { font-weight: normal; }
+        .form-wrapper { padding: 30px; }
+        .error-msg { background: #fdf2f2; color: #d9534f; border: 1px solid #d9534f; padding: 10px; font-size: 14px; margin-bottom: 20px; border-radius: 3px; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; font-size: 15px; color: #555; }
+        .input-group input:focus { outline: none; border-color: #ff6c2c; box-shadow: 0 0 5px rgba(255,108,44,0.3); }
+        .btn { width: 100%; padding: 12px; background: #0082c6; color: white; border: none; border-radius: 3px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #006da6; }
+        .reset-pw { display: block; text-align: center; margin-top: 15px; color: #777; font-size: 13px; text-decoration: none; }
+        .reset-pw:hover { color: #ff6c2c; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">Web<span>ControlPanel</span></div>
+        <div class="form-wrapper">
+            {% if error %}
+            <div class="error-msg">{{ error }}</div>
+            {% endif %}
+            <form method="POST" action="">
+                <div class="input-group">
+                    <input type="text" name="user" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="pass" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn">Log in</button>
+            </form>
+            <a href="#" class="reset-pw">Reset Password</a>
+        </div>
+    </div>
+</body>
+</html>

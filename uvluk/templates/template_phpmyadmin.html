@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>phpMyAdmin</title>
+    <style>
+        body { font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f3f3; color: #444; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-box { background: #fff; width: 400px; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.13); padding: 20px; border-radius: 3px; }
+        .logo { text-align: center; margin-bottom: 20px; font-size: 24px; font-weight: bold; color: #005b9f; }
+        .logo span { color: #f59e00; }
+        h1 { font-size: 16px; margin: 0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #222; }
+        .form-row { margin-bottom: 15px; display: flex; align-items: center; }
+        .form-row label { width: 100px; font-size: 13px; font-weight: bold; }
+        .form-row input[type="text"], .form-row input[type="password"] { flex: 1; padding: 6px; border: 1px solid #aaa; border-radius: 2px; }
+        .form-row input[type="text"]:focus, .form-row input[type="password"]:focus { border-color: #005b9f; outline: none; }
+        .submit-row { text-align: right; margin-top: 20px; }
+        .btn { background: #005b9f; color: white; border: 1px solid #004a80; padding: 6px 12px; cursor: pointer; border-radius: 2px; font-size: 13px; font-weight: bold; }
+        .btn:hover { background: #004a80; }
+        .error { background: #fce4e4; border: 1px solid #fcc2c3; padding: 10px; margin-bottom: 15px; color: #cc0033; font-size: 13px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">php<span>MyAdmin</span></div>
+        <h1>Welcome to phpMyAdmin</h1>
+        
+        {% if error %}
+        <div class="error">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="">
+            <div class="form-row">
+                <label for="input_username">Username:</label>
+                <input type="text" name="pma_username" id="input_username" required>
+            </div>
+            <div class="form-row">
+                <label for="input_password">Password:</label>
+                <input type="password" name="pma_password" id="input_password">
+            </div>
+            <div class="submit-row">
+                <input type="submit" value="Go" class="btn">
+            </div>
+        </form>
+    </div>
+</body>
+</html>

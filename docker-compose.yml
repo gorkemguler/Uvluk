@@ -1,0 +1,34 @@
+
+services:
+  uvluk:
+    build:
+      context: ./uvluk
+      dockerfile: Dockerfile
+    container_name: uvluk_app
+    ports:
+      - "8080:8080"
+    networks:
+      - uvluk_net
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: uvluk_dashboard
+    ports:
+      - "5050:5050"
+    networks:
+      - uvluk_net
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+
+networks:
+  uvluk_net:
+    driver: bridge

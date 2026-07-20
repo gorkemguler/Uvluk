@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Public Uvluk Statistics</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f1f5f9; color: #334155; }
+        .hero { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 40px 0; margin-bottom: 30px; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); margin-bottom: 24px; }
+        .card-header { background-color: #fff; border-bottom: 1px solid #e2e8f0; border-radius: 12px 12px 0 0 !important; font-weight: 600; padding: 16px 20px; }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: #3b82f6; }
+        .stat-label { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; }
+        .disclaimer { font-size: 0.9rem; color: #94a3b8; }
+        table { font-size: 0.9rem; }
+        code { color: #ef4444; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="container text-center">
+        <div class="mb-4 d-flex justify-content-center">
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3); display: inline-block;">
+                <img src="{{ url_for('static', filename='img/logo-text.png') }}" alt="Uvluk" style="height: 90px; width: 320px; object-fit: cover; display: block; transform: scale(1.1);">
+            </div>
+        </div>
+        <p class="lead mb-4">Real-time statistics from our Honeypot sensors.</p>
+        <div class="mb-4">
+            <a href="/public/threat_feed.txt" class="btn btn-outline-light btn-sm" target="_blank">⬇️ Download Threat IP Feed (TXT)</a>
+        </div>
+        <div class="disclaimer mx-auto" style="max-width: 700px;">
+            <strong>Notice:</strong> Bu veriler bir Uvluk (tuzak sistem) tarafından otomatik olarak toplanmıştır. Gerçek bir sisteme ait veriler değildir. Veriler, güvenlik araştırması ve saldırgan profili çıkarma amacıyla paylaşılmaktadır. Gizlilik amacıyla IP adreslerinin son oktetleri maskelenmiş ve e-posta adresine benzeyen veriler sansürlenmiştir.
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    {% if not stats %}
+    <div class="alert alert-info text-center shadow-sm">Sensörden henüz veri alınmadı.</div>
+    {% else %}
+    
+    <!-- Realtime Counters -->
+    <div class="row text-center mb-2">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body py-4">
+                    <div class="stat-value" id="counter-requests">{{ stats.total_requests }}</div>
+                    <div class="stat-label">Total Probes Caught</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body py-4">
+                    <div class="stat-value" id="counter-ips">{{ stats.unique_ips }}</div>
+                    <div class="stat-label">Unique Attackers (IPs)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body py-4">
+                    <div class="stat-value" id="counter-logins">{{ stats.login_attempts }}</div>
+                    <div class="stat-label">Fake Logins Attempted</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header">Activity Timeline (Daily)</div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">Top 10 Masked IPs</div>
+                <div class="card-body" style="position: relative; height: 300px;">
+                    <canvas id="ipChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Top Paths -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Most Targeted Paths</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Path</th>
+                                    <th class="text-end pe-4">Hits</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for path in stats.top_paths %}
+                                <tr>
+                                    <td class="ps-4"><code>{{ path[0] }}</code></td>
+                                    <td class="text-end pe-4 fw-semibold">{{ path[1] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Credentials -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Most Tried Credentials</div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Username</th>
+                                    <th>Password</th>
+                                    <th class="text-end pe-4">Attempts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cred in stats.top_creds %}
+                                <tr>
+                                    <td class="ps-4"><code>{{ cred[0] }}</code></td>
+                                    <td><code>{{ cred[1] }}</code></td>
+                                    <td class="text-end pe-4 fw-semibold">{{ cred[2] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4 mb-5 text-muted small">
+        <p>Data refreshes automatically every 30 seconds.</p>
+    </div>
+
+    {% endif %}
+</div>
+
+<script>
+    {% if stats %}
+    // Initialize Charts
+    const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+    new Chart(trafficCtx, {
+        type: 'line',
+        data: {
+            labels: {{ stats.time_series.labels | safe }},
+            datasets: [{
+                label: 'Events Captured',
+                data: {{ stats.time_series.data | safe }},
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 3,
+                pointBackgroundColor: '#3b82f6',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, grid: { borderDash: [2, 4] } }, x: { grid: { display: false } } }
+        }
+    });
+
+    const ipCtx = document.getElementById('ipChart').getContext('2d');
+    new Chart(ipCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ stats.top_ips | map(attribute=0) | list | tojson }},
+            datasets: [{
+                data: {{ stats.top_ips | map(attribute=1) | list | tojson }},
+                backgroundColor: '#ef4444',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: { x: { grid: { borderDash: [2, 4] } }, y: { grid: { display: false } } }
+        }
+    });
+
+    // Auto Refresh Logic
+    setInterval(() => {
+        fetch('/api/stats?public=true')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('counter-requests').innerText = data.total_requests;
+                document.getElementById('counter-ips').innerText = data.unique_ips;
+                document.getElementById('counter-logins').innerText = data.login_attempts;
+            })
+            .catch(err => console.error('Failed to fetch stats', err));
+    }, 30000);
+    
+    // Page reload every 5 mins to refresh charts
+    setTimeout(() => {
+        window.location.reload();
+    }, 300000);
+    {% endif %}
+</script>
+
+</body>
+</html>
