@@ -48,9 +48,9 @@ Instead of presenting a static page, Uvluk can morph into high-value targets lik
 ### 3. Honeypot Disguises in Action
 | Corporate Gateway | phpMyAdmin Trap | WordPress Trap |
 | :---: | :---: | :---: |
-| <img src="docs/img/trap-generic.png" width="250"/> | <img src="docs/img/trap-pma.png" width="250"/> | <img src="docs/img/trap-wp.png" width="250"/> |
-| <img src="docs/img/gen.png" width="250"/> | <img src="docs/img/n.png" width="250"/> | <img src="docs/img/a.png" width="250"/> |
-| <img src="docs/img/c.png" width="250"/> | <img src="docs/img/f.png" width="250"/> |
+| <img src="docs/img/gen.png" width="250"/> | <img src="docs/img/trap-pma.png" width="250"/> | <img src="docs/img/trap-wp.png" width="250"/> |
+| <img src="docs/img/f.png" width="250"/> | <img src="docs/img/n.png" width="250"/> | <img src="docs/img/a.png" width="250"/> |
+| <img src="docs/img/c.png" width="250"/> |
 
 ---
 
