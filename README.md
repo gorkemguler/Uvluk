@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="uvluk/static/img/logo-full.png" alt="Uvluk Logo" width="200"/>
+  <img src="uvluk/static/img/logo-full.png" alt="Uvluk Logo" width="500"/>
   <h1>Uvluk: Dynamic Web Honeypot & Threat Intelligence System</h1>
   <p><em>An advanced, deceptive, and containerized honeypot system for tracking automated scanners, brute-force bots, and malicious actors.</em></p>
 
